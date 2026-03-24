@@ -1,0 +1,20 @@
+# Init gitignore for the project
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+# Ignore virtual environment directories
+venv/
+myvenv/
+env/
+*.env
+# Ignore log files
+logs/
+*.log
+# Ignore IDE specific files
+.vscode/
+.idea/
+# Ignore Docker files
+docker-compose.yml
+# Ignore other files
+*.tmp
+*.bak
