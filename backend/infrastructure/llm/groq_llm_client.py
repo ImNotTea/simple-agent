@@ -1,5 +1,5 @@
 # Adapter for LLMClient to interact with Groq LLM API
-from application.interfaces.llm_client import LLMClient
+from application.interface.llm_client import LLMClient
 from config.settings import LLMSettings
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage

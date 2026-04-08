@@ -9,14 +9,18 @@ logger = getLogger(__name__)
 async def lifespan(app: FastAPI):
     try:
         """Manage application lifespan events for dependency injection"""
+        logger.info("Starting application lifespan")
         # Initialize dependency injection container
         container: Container = app.state.container
         
         # Startup: Wire container to modules that use @inject decorator
         container.wire(modules=["presentation.apis.chat_api"])
         
-        # Implement any additional startup logic here (e.g., database connections, cache initialization, etc.)
+        # Warmup database connection
+        db = container.database_client()
+        await db.warmup()
         
+        logger.info("Application lifespan started successfully")
         yield # Application runs here
         
     except Exception as e:
@@ -26,5 +30,5 @@ async def lifespan(app: FastAPI):
         logger.info("Shutting down application and unwiring container")
         # Shutdown: Unwire container
         container.unwire()
-        # Shutdown resource
+        # Shutdown resources
         container.shutdown_resources()

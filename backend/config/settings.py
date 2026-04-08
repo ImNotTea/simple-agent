@@ -1,17 +1,41 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, SecretStr
 from functools import lru_cache
 
 class LLMSettings(BaseModel):
     """Settings related to LLM API keys and configurations"""
     temperature: float
-
+    
+class DBSettings(BaseModel):
+    """Settings related to database connections"""
+    host: str
+    port: int
+    user: str
+    password: SecretStr
+    database: str
+    db_schema: str
+    pool_size: int
+    max_overflow: int
+    pool_recycle: int  # Recycle connections after 1 hour of inactivity
+            
 class Settings(BaseSettings):
     PROJECT_NAME: str = "FastAPI + Chainlit Chatbot"
     API_V1_STR: str = "/api/v1"
     
+    # DB related settings
+    DB_HOST: str = Field(default="localhost")
+    DB_PORT: int = Field(default=5433)
+    DB_USER: str = Field(default="postgres")
+    DB_PASSWORD: SecretStr = Field(default=SecretStr("password"))
+    DB_NAME: str = Field(default="chatbot_db")
+    DB_SCHEMA: str = Field(default="public")
+    DB_POOL_SIZE: int = Field(default=1)
+    DB_MAX_OVERFLOW: int = Field(default=10)
+    DB_POOL_RECYCLE: int = Field(default=3600)
+
+    
     # LLM related settings
-    LLM_TEMPERATURE: float = 0.7
+    LLM_TEMPERATURE: float = Field(default=0.7)
     
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8', extra='ignore')
     
@@ -20,6 +44,21 @@ class Settings(BaseSettings):
         """Get LLM related settings as a structured object"""
         return LLMSettings(
             temperature=self.LLM_TEMPERATURE
+        )
+    
+    # Define settings for database connections
+    def get_db_settings(self) -> DBSettings:
+        """Get database related settings as a structured object"""
+        return DBSettings(
+            host=self.DB_HOST,
+            port=self.DB_PORT,
+            user=self.DB_USER,
+            password=self.DB_PASSWORD,
+            database=self.DB_NAME,
+            db_schema=self.DB_SCHEMA,
+            pool_size=self.DB_POOL_SIZE,
+            max_overflow=self.DB_MAX_OVERFLOW,
+            pool_recycle=self.DB_POOL_RECYCLE
         )
 
 @lru_cache()
