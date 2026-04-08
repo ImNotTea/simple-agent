@@ -2,19 +2,65 @@
 # Ignore Python bytecode files
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
 # Ignore virtual environment directories
 venv/
 myvenv/
 env/
+.venv/
+.python-version
 *.env
+.env
+.env.*
+
+# Ignore packaging and build artifacts
+build/
+dist/
+site/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
 # Ignore log files
 logs/
 *.log
+
 # Ignore IDE specific files
 .vscode/
 .idea/
+*.code-workspace
+
+# Ignore notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
 # Ignore Docker files
 docker-compose.yml
+
 # Ignore other files
 *.tmp
 *.bak
+*.swp
+*.swo
+
+# Ignore ai context files
+.copilot/
+
+# Ignore database files
+*.db
+.database/
