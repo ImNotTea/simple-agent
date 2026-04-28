@@ -1,7 +1,7 @@
 import chainlit as cl
 from config import settings
 import httpx
-from schema.chat_schema import RequestMessage
+from schema.chat_schema import MessageSchema
 
 # Load settings
 cfg_settings = settings.get_settings()
@@ -15,18 +15,30 @@ async def on_chat_start():
 @cl.on_message
 async def main(message: cl.Message):
     """Process messages from user"""
-    # Initiate empty response message
     msg = cl.Message(content="")
-    request_message = RequestMessage(role="user", message=message.content)
-    async with httpx.AsyncClient(timeout=None) as client:
+    await msg.send()
 
-        async with client.stream(
-            "POST",
-            "http://localhost:8000/api/v1/chat",
-            json=request_message.model_dump(),
-        ) as response:
+    request_message = MessageSchema(role="user", message=message.content)
+    full_response: list[str] = []
 
-            async for chunk in response.aiter_text():
-                await msg.stream_token(chunk)
+    try:
+        async with httpx.AsyncClient(timeout=None) as client:
+            async with client.stream(
+                "POST",
+                "http://localhost:8000/api/v1/chat",
+                json=request_message.model_dump(exclude_none=True),
+            ) as response:
+                response.raise_for_status()
+
+                async for chunk in response.aiter_text():
+                    if not chunk:
+                        continue
+
+                    full_response.append(chunk)
+                    await msg.stream_token(chunk)
+
+        msg.content = "".join(full_response)
+    except httpx.HTTPError as exc:
+        msg.content = f"Unable to reach chat service: {exc}"
 
     await msg.update()
