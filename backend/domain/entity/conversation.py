@@ -1,18 +1,18 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from domain.entity.message import Message
 import uuid
 
 @dataclass
 class Conversation:
-    id: str # Unique identifier for the conversation
-    messages: list[Message | None]
+    id: str
+    messages: list[Message] = field(default_factory=list)
     
     @staticmethod
-    def create(messages: list[Message | None] = []) -> "Conversation":
+    def create(messages: list[Message | None] = None) -> "Conversation":
         """Factory method to create a new Conversation instance with a unique ID"""
         return Conversation(
             id=str(uuid.uuid4()),
-            messages=messages
+            messages=messages or []
         )
         
     def add_message(self, message: Message) -> None:
