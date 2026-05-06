@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from backend.application.interface.conversation_repository import ConversationRepository
-from backend.application.interface.message_repository import MessageRepository
+from application.interface.conversation_repository import ConversationRepository
+from application.interface.message_repository import MessageRepository
 
 class UnitOfWork(ABC):
     """Abstract base class for Unit of Work pattern to manage database transactions and repositories"""

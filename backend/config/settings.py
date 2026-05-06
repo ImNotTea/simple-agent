@@ -17,7 +17,16 @@ class DBSettings(BaseModel):
     pool_size: int
     max_overflow: int
     pool_recycle: int  # Recycle connections after 1 hour of inactivity
-            
+    
+class RedisSettings(BaseModel):
+    """Settings related to Redis connections"""
+    host: str
+    port: int
+    password: SecretStr | None = None
+    db: int = 0
+    idem_cache_ttl: int = Field(default=3600, description="Time-to-live for idempotency cache entries in seconds")
+    idem_prefix: str = Field(default="chat:idem", description="Prefix for idempotency cache keys in Redis")
+    
 class Settings(BaseSettings):
     PROJECT_NAME: str = "FastAPI + Chainlit Chatbot"
     API_V1_STR: str = "/api/v1"
@@ -32,8 +41,15 @@ class Settings(BaseSettings):
     DB_POOL_SIZE: int = Field(default=1)
     DB_MAX_OVERFLOW: int = Field(default=10)
     DB_POOL_RECYCLE: int = Field(default=3600)
-
     
+    # Redis related settings
+    REDIS_HOST: str = Field(default="localhost")
+    REDIS_PORT: int = Field(default=6379)
+    REDIS_PASSWORD: SecretStr | None = Field(default=None)
+    REDIS_DB: int = Field(default=0)
+    IDEM_CACHE_TTL: int = Field(default=3600, description="Time-to-live for idempotency cache entries in seconds")
+    IDEM_PREFIX: str = Field(default="chat:idem", description="Prefix for idempotency cache keys in Redis")
+
     # LLM related settings
     LLM_TEMPERATURE: float = Field(default=0.7)
     
@@ -59,6 +75,18 @@ class Settings(BaseSettings):
             pool_size=self.DB_POOL_SIZE,
             max_overflow=self.DB_MAX_OVERFLOW,
             pool_recycle=self.DB_POOL_RECYCLE
+        )
+        
+    # Define settings for Redis connections
+    def get_redis_settings(self) -> RedisSettings:
+        """Get Redis related settings as a structured object"""
+        return RedisSettings(
+            host=self.REDIS_HOST,
+            port=self.REDIS_PORT,
+            password=self.REDIS_PASSWORD,
+            db=self.REDIS_DB,
+            idem_cache_ttl=self.IDEM_CACHE_TTL,
+            idem_prefix=self.IDEM_PREFIX
         )
 
 @lru_cache()

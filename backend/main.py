@@ -1,4 +1,3 @@
-from chainlit.server import app
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from presentation.apis.chat_api import router as chat_router
