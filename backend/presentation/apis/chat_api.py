@@ -17,11 +17,10 @@ async def health_check(test: str = "ping"):
 
 @router.post("/chat", response_model=ChatResponse, description="Endpoint for chatting with the LLM. Streams responses as they are generated.")
 @inject
-async def chat(request: dict[str, str], chat_use_case: ChatUseCase = Depends(Provide[Container.chat_use_case])) -> ChatResponse:
+async def chat(request: MessageSchema, chat_use_case: ChatUseCase = Depends(Provide[Container.chat_use_case])) -> ChatResponse:
     """An API endpoint for chatting"""
     # Validate request schema
-    chat_request = MessageSchema(**request)
-    chat_request_dto = chat_request.to_dto()
+    chat_request_dto = request.to_dto()
     
     async def event_generator():
         """Generator function to stream chat responses"""
